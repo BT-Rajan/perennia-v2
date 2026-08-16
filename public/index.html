@@ -459,9 +459,33 @@
       font-family: var(--font-en-display);
       font-size: clamp(1.55rem, 3.2vw, 2.3rem);
       font-weight: 600;
-      color: #ffffff;
       line-height: 1.2;
       letter-spacing: -0.01em;
+      /* Gradient text fill, swept by a slow shimmer. color/-webkit-
+         text-fill-color are the fallback for browsers without
+         background-clip: text support (older Firefox, some in-app
+         webviews) — they'll just see solid white instead of losing
+         the heading. Deliberately uses background-image, NOT the
+         `background` shorthand: the shorthand resets background-clip
+         to border-box on any rule that doesn't also restate it,
+         which silently breaks the clip-to-text effect (painted the
+         gradient as a plain rectangle instead of clipping it to the
+         letters) the first time this exact technique was tried. */
+      color: #ffffff;
+      background-image: linear-gradient(100deg, #ffffff 30%, var(--gold) 55%, #ffffff 80%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: tagline-shimmer 5s linear infinite;
+    }
+
+    @keyframes tagline-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -100% 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .tagline-main { animation: none; }
     }
 
     [dir="rtl"] .tagline-main {
@@ -469,6 +493,9 @@
       font-weight: 500;
     }
 
+    /* Fallback-only: on engines that don't honor background-clip: text,
+       this at least keeps "Shaping Tomorrow." (the .gold span) visually
+       distinct from the first line, same as the site's original look. */
     .tagline-main .gold { color: var(--gold); }
 
     .tagline-divider {
@@ -751,7 +778,10 @@
     }
     body.theme-light::before { background-image: linear-gradient(rgba(10,30,70,0.028) 1px, transparent 1px), linear-gradient(90deg, rgba(10,30,70,0.028) 1px, transparent 1px); }
 
-    body.theme-light .tagline-main { color: #16233f; }
+    body.theme-light .tagline-main {
+      color: #16233f;
+      background-image: linear-gradient(100deg, #16233f 30%, var(--gold) 55%, #16233f 80%);
+    }
     body.theme-light .tagline-sub  { color: rgba(22,35,63,0.45); }
 
     body.theme-light .theme-btn,
