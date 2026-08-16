@@ -1,0 +1,247 @@
+============================================================
+        PERENNIA - WINDOWS INSTALLATION
+============================================================
+
+QUICK START (3 Steps)
+============================================================
+
+1. INSTALL PYTHON (if not already installed)
+   -------------------------------------------
+   Download: https://www.python.org/downloads/
+
+   IMPORTANT:
+      - Choose Python 3.10 or higher
+      - CHECK "Add python.exe to PATH" during installation
+      - Click "Install Now"
+
+2. RUN THE INSTALLER
+   -------------------------------------------
+   1. Extract the project folder (if it came as a .zip)
+   2. Open the folder
+   3. Double-click: installer.bat
+   4. Wait for it to finish (installing dependencies takes a
+      couple of minutes the first time)
+   5. When it asks "Start the server now? [Y/N]", press Y
+
+   installer.bat is safe to run again later (e.g. after pulling a
+   code update) -- it reuses your existing settings instead of
+   resetting them, unless you pass --force.
+
+3. CONFIGURE & USE
+   -------------------------------------------
+   1. Open your browser to: http://localhost:8001
+   2. Go to: http://localhost:8001/admin
+   3. Sign in with the username/password installer.bat printed
+      when it finished (also saved in admin_access.secret)
+   4. Add your Anthropic API key under Provider & Model -- that's
+      the only thing you must configure before the chat will work
+   5. Everything else (site text, contact details, appointments,
+      Google Calendar, etc.) is also configured from this panel
+
+============================================================
+DETAILED INSTALLATION GUIDE
+============================================================
+
+Step 1: Install Python
+------------------------
+
+1. Visit: https://www.python.org/downloads/
+2. Download Python 3.10+ (latest recommended)
+3. Run the installer
+4. IMPORTANT: check "Add python.exe to PATH"
+5. Click "Install Now" and wait for it to finish
+6. Close the installer
+
+Verify Python installed:
+   Open Command Prompt
+   Type: python --version
+   Should show: Python 3.x.x
+
+If typing "python" instead opens the Microsoft Store, Python isn't
+actually installed yet -- install it from python.org first (see
+above). installer.bat also detects and explains this automatically.
+
+============================================================
+
+Step 2: Run installer.bat
+---------------------------
+
+1. Open the project folder
+2. Double-click installer.bat
+   (If Windows shows a SmartScreen warning because the file isn't
+   signed, click "More info" then "Run anyway" -- this is expected
+   for a script you downloaded directly rather than through the
+   Microsoft Store.)
+3. Watch the steps run:
+     [1/5] Checking Python installation...
+     [2/5] Creating virtual environment...
+     [3/5] Installing Python packages...        (a few minutes)
+     [4/5] Creating data directories...
+     [5/5] Generating configuration and startup script...
+4. At the end it prints your admin URL, username, and password
+   (only shown the first time -- save it now)
+5. When asked "Start the server now? [Y/N]", press Y to launch
+   immediately, or N to start it later with start-server.bat
+
+Command-line options (all optional):
+   installer.bat --port 8080
+   installer.bat --admin-username admin --admin-password "..."
+   installer.bat --force        (regenerates all secrets --
+                                  invalidates existing sessions and
+                                  any previously saved API key)
+
+============================================================
+
+Step 3: Configure & Start
+---------------------------
+
+Nothing to hand-edit -- installer.bat already wrote a working .env
+for you. To start (or restart) the server later:
+
+1. Double-click: start-server.bat
+2. A console window opens and stays open while the server runs
+3. Wait for: "Uvicorn running on http://127.0.0.1:8001"
+4. Keep this window open (closing it stops the server)
+
+============================================================
+
+Step 4: Access the Application
+--------------------------------
+
+1. Open a web browser (Chrome, Firefox, Edge)
+2. Visit: http://localhost:8001
+3. You should see the Perennia landing page and chat
+4. Ask it a question to try it out
+
+Admin Panel:
+   Visit: http://localhost:8001/admin
+   Sign in with the credentials installer.bat printed (or see
+   admin_access.secret in the project folder). Add your Anthropic
+   API key here first -- nothing else will work without it.
+   Everything else on the public site (text, contact info,
+   appointments, Google Calendar sync, colors) is also configured
+   from this panel -- there's no config file to hand-edit.
+
+Forgot the admin password?
+   Click "Forgot password?" on the /admin login page. Since this
+   local install has no email configured, the reset link is written
+   to password_reset.secret in the project folder instead of being
+   emailed -- open that file to get the link.
+
+============================================================
+TROUBLESHOOTING
+============================================================
+
+Problem: "Python was not found" / "python" opens the Microsoft Store
+-----------------------------------------------------------------------
+Solution:
+1. Install Python from https://www.python.org/downloads/, making
+   sure to check "Add python.exe to PATH"
+2. Close and reopen Command Prompt / re-run installer.bat
+3. If "python" still opens the Store afterward: open Settings >
+   Apps > Advanced app settings > App execution aliases, and turn
+   OFF the "python.exe" / "python3.exe" entries pointing at the
+   Store, then try again
+
+Problem: Dependencies failed to install
+------------------------------------------
+Solution:
+1. Make sure you have an internet connection
+2. Antivirus / Windows Defender can occasionally block pip mid-
+   download -- try temporarily disabling real-time protection
+3. Try running installer.bat as Administrator
+4. Manual install:
+     venv\Scripts\activate.bat
+     pip install -r requirements.txt
+
+Problem: Server won't start / "Address already in use"
+-----------------------------------------------------------
+Solution:
+1. Something else is already using port 8001 -- either close it,
+   or re-run: installer.bat --port 8080
+2. Check start-server.bat's console window for the actual error
+
+Problem: Browser shows "Connection refused"
+-----------------------------------------------
+Solution:
+1. Make sure start-server.bat's window is still open and running
+2. Wait a few seconds after starting, then refresh
+3. Use http:// not https:// (this local install has no TLS
+   certificate configured)
+4. Confirm the port: check the PORT= line in .env
+
+Problem: Admin login doesn't seem to work
+-------------------------------------------
+Solution:
+1. Double-check the username/password from installer.bat's output
+   or admin_access.secret
+2. Use "Forgot password?" on the login page if you're not sure
+3. Make sure COOKIE_SECURE=false in .env (installer.bat sets this
+   correctly for a local HTTP-only install -- if you changed it to
+   true without also setting up HTTPS, login cookies get silently
+   dropped by the browser)
+
+============================================================
+FILE DESCRIPTIONS
+============================================================
+
+installer.bat
+   -> Installs everything: Python venv, dependencies, .env,
+      directories, and writes start-server.bat
+   -> Double-click to run, no PowerShell required
+   -> Safe to re-run any time (preserves existing settings)
+
+start-server.bat
+   -> Starts the Perennia server
+   -> Written automatically by installer.bat -- don't need to
+      create it yourself
+   -> Double-click to run; must run installer.bat first
+
+.env
+   -> Holds secrets and server settings (host, port, session keys)
+   -> Written by installer.bat; only hand-edit if you know what
+      you're changing
+   -> Never commit this file to version control
+
+admin_access.secret / admin_credentials.secret / password_reset.secret
+   -> Local reference files with admin login info, written by the
+      app itself (never emailed anywhere) -- see the admin panel's
+      "Forgot password?" flow for details
+
+============================================================
+UNINSTALLING
+============================================================
+
+1. Stop the server (close the start-server.bat window)
+2. Delete the project folder
+
+The virtual environment, dependencies, and all data live inside the
+project folder, so deleting it removes everything.
+
+============================================================
+WHAT PORTS ARE USED
+============================================================
+
+Default: http://localhost:8001
+   -> Main application and admin panel (/admin)
+
+To use a different port: installer.bat --port 8080
+
+============================================================
+SECURITY NOTES
+============================================================
+
+- Do not share your Anthropic API key or admin password
+- Do not commit .env or any *.secret file to version control
+  (both are already excluded via .gitignore)
+- This install is local-only (bound to 127.0.0.1) and not exposed
+  to your network or the internet by default
+- No HTTPS/TLS is configured for a local install -- if you expose
+  this beyond your own machine, put a reverse proxy with a real
+  certificate in front of it first, and set COOKIE_SECURE=true in
+  .env once you do (see install.sh for the equivalent Linux/
+  CloudPanel setup, which handles this automatically)
+
+============================================================
+
+Ready to install? Follow the "Quick Start" section above.
